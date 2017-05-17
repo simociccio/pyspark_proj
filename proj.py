@@ -184,6 +184,7 @@ pdf=filter_pipeline.transform(df).toPandas()
 pdf['score']=pd.to_numeric(pdf['score'], errors='coerce').fillna(0)
 df3 = sql_c.createDataFrame(pdf)
 
+
 ///////////////Estraggo i lemmi con i relativi pesi dal file DepecheMood_tf_idf///////////////////
 
 d0 = sc.textFile('/home/saimon/Scaricati/DepecheMood_V1.0/DepecheMood_V1.0/DepecheMood_tfidf.txt')
@@ -202,6 +203,24 @@ pdf_lemma=df4.toPandas()
 s = pdf_lemma.apply(lambda x: pd.Series(x['filtered']),axis=1).stack().reset_index(level=1, drop=True)
 s.name='word'
 pdf_lemma=pdf_lemma.drop('filtered', axis=1).join(s)
+pdf_dep=df_dep.toPandas()
+pdf_lemma.index.names = ['ind']
+pdf_dep.index.names = ['ind']
+pdf_merge=pdf_dep.merge(pdf_lemma,left_on='lemma#pos',right_on='word')
+pdf_prova=pdf_merge.groupby(['id'])['afraid']['amused'].sum()
+pdf_merge['afraid']=pd.to_numeric(pdf_merge['afraid'], errors='coerce').fillna(0)
+pdf_merge['amused']=pd.to_numeric(pdf_merge['amused'], errors='coerce').fillna(0)
+pdf_merge['angry']=pd.to_numeric(pdf_merge['angry'], errors='coerce').fillna(0)
+pdf_merge['annoyed']=pd.to_numeric(pdf_merge['annoyed'], errors='coerce').fillna(0)
+pdf_merge['dont_care']=pd.to_numeric(pdf_merge['dont_care'], errors='coerce').fillna(0)
+pdf_merge['happy']=pd.to_numeric(pdf_merge['happy'], errors='coerce').fillna(0)
+pdf_merge['inspired']=pd.to_numeric(pdf_merge['inspired'], errors='coerce').fillna(0)
+pdf_merge['sad']=pd.to_numeric(pdf_merge['sad'], errors='coerce').fillna(0)
+
+
+pdf_fin=pdf_merge.groupby(['id'], as_index=False).sum()
+df_fin = sql_c.createDataFrame(pdf_fin)
+sf_fin.show()
 
 
 
