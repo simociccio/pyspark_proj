@@ -1,6 +1,3 @@
-
-
-
 from pyspark import SQLContext
 from pyspark.sql import Row
 from pyspark.sql.functions import *
